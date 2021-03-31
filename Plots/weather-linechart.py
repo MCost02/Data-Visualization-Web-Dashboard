@@ -4,11 +4,19 @@ import plotly.graph_objs as go
 
 # Load CSV file from Datasets folder
 df = pd.read_csv('../Datasets/Weather2014-15.csv')
-df['month'] = pd.to_datetime(df['date'])
+
+# Removing empty spaces to avoid errors
+df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+
+# Creating sum of number of cases group by month Column
+new_df = df.groupby(['month'])['actual_max_temp'].max().reset_index()
+
+new_df['month'] = pd.Categorical(new_df['month'], ['July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March', 'April', 'May', 'June'])
+
+new_df = new_df.sort_values('month')
 
 # Preparing data
-data = [go.Scatter(x=df['month'], y=df['actual_max_temp'], mode='lines', name='Max Temperature')]
-
+data = [go.Scatter(x=new_df['month'], y=new_df['actual_max_temp'], mode='lines', name='month')]
 # Preparing layout
 layout = go.Layout(title='Actual Max Temperature of Each Month', xaxis_title="Month",
                    yaxis_title="Max Temperature")
